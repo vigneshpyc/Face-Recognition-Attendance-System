@@ -3,7 +3,14 @@ import cv2
 import pandas as pd
 import pickle
 import datetime
+import pymongo
 
+
+#create a DAtabase connection
+url = 'mongodb://localhost:27017/'
+client = pymongo.MongoClient(url)
+db = client['face_data']
+collection = db['attendance']
 # Load trained face encodings
 with open("face_data.pkl", "rb") as f:
     data = pickle.load(f)
@@ -36,6 +43,7 @@ while True:
                 if not ((attendance_df["Name"] == student) & (attendance_df["Time"].str.startswith(timestamp[:10]))).any():
                     new_entry = {"Name": student, "Time": timestamp}
                     attendance_df = attendance_df._append(new_entry, ignore_index=True)
+                    collection.insert_one(new_entry)
                     attendance_df.to_csv(attendance_file, index=False)
 
                 cv2.putText(frame, student, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
