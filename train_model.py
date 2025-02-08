@@ -3,7 +3,7 @@ import pickle
 import os
 from PIL import Image
 import numpy as np
-import cv2  # Import OpenCV (if you have it installed)
+import cv2 
 
 data = {}
 
@@ -21,21 +21,17 @@ for student in os.listdir("dataset"):
         img_path = os.path.join(student_path, img_file)
 
         try:
-            # Try OpenCV first (most robust)
             try:
                 img = cv2.imread(img_path)
                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            except Exception as e_cv2:  # If OpenCV fails, try PIL
+            except Exception as e_cv2:
                 try:
                     pil_image = Image.open(img_path)
                     img = np.array(pil_image.convert('RGB'))[:, :, ::-1].copy()  # Most robust PIL method
                 except Exception as e_pil:
                     print(f"Error processing {img_path} (OpenCV): {e_cv2}")
                     print(f"Error processing {img_path} (PIL): {e_pil}")
-                    continue  # Skip to the next image if both fail
-
-            # Check image shape (for debugging)
-            #print(f"Image shape: {img.shape} for {img_path}") # Uncomment for debugging
+                    continue
 
             encodings = face_recognition.face_encodings(img)
 
@@ -45,7 +41,7 @@ for student in os.listdir("dataset"):
                 print(f"No faces found in {img_path}, skipping.")
 
         except Exception as e:
-            print(f"General error processing {img_path}: {e}")  # Catch any other unexpected errors
+            print(f"General error processing {img_path}: {e}")
 
     if images:
         data[student] = images

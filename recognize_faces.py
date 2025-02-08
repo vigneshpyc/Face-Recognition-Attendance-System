@@ -6,19 +6,18 @@ import datetime
 import pymongo
 
 
-#create a DAtabase connection
+
 url = 'mongodb://localhost:27017/'
 client = pymongo.MongoClient(url)
 db = client['face_data']
 collection = db['attendance']
-# Load trained face encodings
+
 with open("face_data.pkl", "rb") as f:
     data = pickle.load(f)
 
-# Open Camera
 cam = cv2.VideoCapture(0)
 
-# Load existing attendance or create new
+
 attendance_file = "attendance.csv"
 try:
     attendance_df = pd.read_csv(attendance_file)
@@ -39,7 +38,7 @@ while True:
             if True in matches:
                 timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-                # Mark attendance if not already marked today
+                
                 if not ((attendance_df["Name"] == student) & (attendance_df["Time"].str.startswith(timestamp[:10]))).any():
                     new_entry = {"Name": student, "Time": timestamp}
                     attendance_df = attendance_df._append(new_entry, ignore_index=True)
@@ -49,7 +48,7 @@ while True:
                 cv2.putText(frame, student, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
     cv2.imshow("Attendance System", frame)
-    if cv2.waitKey(1) == 27:  # Press ESC to exit
+    if cv2.waitKey(1) == 27:
         break
 cam.release()
 cv2.destroyAllWindows()
